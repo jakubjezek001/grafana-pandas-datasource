@@ -46,8 +46,7 @@ class LoggingMiddleware(object):
 
         def log_response(status, headers, *args):
             pprint(("RESPONSE", status, headers), stream=errorlog)
-            response = start_response(status, headers, *args)
-            return response
+            return start_response(status, headers, *args)
 
         # Capture response body.
         app_iter = self._app(environ, log_response)

@@ -42,17 +42,16 @@ def find_metrics():
     else:
         finder = target
 
-    if not target or finder not in dg.metric_finders:
-        metrics = []
-        if target == "*":
-            metrics += dg.metric_finders.keys()
-            metrics += dg.metric_readers.keys()
-        else:
-            metrics.append(target)
-
-        return jsonify(metrics)
-    else:
+    if target and finder in dg.metric_finders:
         return jsonify(list(dg.metric_finders[finder](target)))
+    metrics = []
+    if target == "*":
+        metrics += dg.metric_finders.keys()
+        metrics += dg.metric_readers.keys()
+    else:
+        metrics.append(target)
+
+    return jsonify(metrics)
 
 
 @pandas_component.route("/query", methods=methods)
@@ -68,11 +67,7 @@ def query_metrics():
         "$lte": pd.Timestamp(req["range"]["to"]).to_pydatetime(),
     }
 
-    if "intervalMs" in req:
-        freq = str(req.get("intervalMs")) + "ms"
-    else:
-        freq = None
-
+    freq = str(req.get("intervalMs")) + "ms" if "intervalMs" in req else None
     for target in req["targets"]:
         if ":" not in target.get("target", ""):
             abort(404, Exception("Target must be of type: <finder>:<metric_query>, got instead: " + target["target"]))
