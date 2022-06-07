@@ -38,10 +38,12 @@ def define_and_register_data():
     # Sample annotation reader.
     def get_mellifera_flowering(query_string, ts_range):
         query = dict(urllib.parse.parse_qsl(query_string))
-        series = phenodata_mellifera(
-            dataset="immediate", years=tuple([2019, 2020, 2021]), phases=tuple([5, 7]), options=tuple(query.items())
+        return phenodata_mellifera(
+            dataset="immediate",
+            years=(2019, 2020, 2021),
+            phases=(5, 7),
+            options=tuple(query.items()),
         )
-        return series
 
     # Register data generators.
     dg.add_annotation_reader("flowering", get_mellifera_flowering)
@@ -75,7 +77,7 @@ def phenodata_mellifera(dataset: str, years: tuple[int], phases: tuple[str], opt
         data_total.append(data_past)
 
     if "forecast" in options["type"]:
-        next_year = (datetime.today() + timedelta(days=365)).year
+        next_year = (datetime.now() + timedelta(days=365)).year
         data_future = client.get_forecast(
             phenodata_options, forecast_year=next_year, humanize=phenodata_options["humanize"]
         )
